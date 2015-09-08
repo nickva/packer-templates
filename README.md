@@ -1,3 +1,11 @@
+This is a modified fork of https://github.com/lxhunter/packer-templates
+
+Changes:
+  - no vmare support
+  - locale for debian templates switched from de_DE to en_US
+
+
+ 
 Features
 ========
 - UTC set
@@ -5,13 +13,9 @@ Features
 - /home /tmp are mounted with nosuid, nodev and noexec
 
 ##### Boxes
-- ![lenny](https://raw.github.com/lxhunter/packer-templates/master/deco/lenny.png "Lenny") **Lenny 5.0.10**
-- ![squeeze](https://raw.github.com/lxhunter/packer-templates/master/deco/squeeze.png "Squeeze") **Squeeze 6.0.10**
 - ![wheezy](https://raw.github.com/lxhunter/packer-templates/master/deco/wheezy.png "Wheezy") **Wheezy 7.4.0**
 - ![jessie](https://raw.github.com/lxhunter/packer-templates/master/deco/jessie.png "Jessie") **Jessie 8.1.0**
 - **12.04 Precise Pangolin**
-- **13.04 Raring Ringtail**
-- **13.10 Saucy Salamander**
 - **14.10 Utopic Unicorn**
 
 Todo
@@ -24,8 +28,6 @@ Requirements
 - [packer](http://packer.io)
 - [vagrant](http://vagrantup.com)
 - [virtualbox](https://virtualbox.org)
-- [vmware fusion](http://vmware.com/de/products/fusion)
-- [vagrant vmware fusion license](http://vagrantup.com/vmware)
 
 Packer Install 
 ========
@@ -51,30 +53,21 @@ $ git clone https://github.com/lxhunter/packer-templates.git
 $ cd packer-templates/templates/debian
 ```
 
-#### 2. a.) build for all providers (virtualbox && vmware)
+#### 2. a.) build for all virtualbox
 ```shell
-$ packer build debian-lenny-5.0.10-amd64-netinst.json
+$ packer build debian-jessie-8.1.0-amd64-netinst.json
+```
+same as:
+
+```shell
+$ packer build -only=virtualbox-iso debian-jelenny-5.0.10-amd64-netinst.json
 ```
 
-#### 2. b.) build only for virtualbox
-```shell
-$ packer build -only=virtualbox-iso debian-lenny-5.0.10-amd64-netinst.json
-```
-
-#### 2. c.) build only for vmware
-```shell
-$ packer build -only=vmware-iso debian-lenny-5.0.10-amd64-netinst.json
-```
 #### 3. ... a lot of building going on ...
 
 #### 4. a.) adding virtualbox box to vagrant 
 ```shell
 $ vagrant box add debian-lenny-5.0.10-amd64-netinst-provisionerless ../../virtualbox/debian-lenny-5.0.10-amd64-netinst-provisionerless.box
-```
-
-#### 4. b.) adding vmware box to vagrant 
-```shell
-$ vagrant box add debian-lenny-5.0.10-amd64-netinst-provisionerless ../../vmware/debian-lenny-5.0.10-amd64-netinst-provisionerless.box
 ```
 
 #### 5. enjoy fresh packed boxes
