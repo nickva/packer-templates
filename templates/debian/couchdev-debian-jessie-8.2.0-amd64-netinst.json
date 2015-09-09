@@ -1,0 +1,76 @@
+{
+    "variables": {
+        "provisioner": "provisionerless",
+        "provisioner_version": "",
+        "iso_url": "http://cdimage.debian.org/cdimage/release/8.2.0/amd64/iso-cd/debian-8.2.0-amd64-netinst.iso",
+        "iso_checksum": "a41801dcc0e37bce2406e18b334f99ae366d6fde",
+        "iso_checksum_type": "sha1",
+        "preseed": "couchdev-debian-jessie-preseed.cfg",
+        "domain": "vagrantup.com",
+        "ssh_username": "vagrant",
+        "ssh_password": "vagrant",
+        "vm_name": "couchdev-debian-jessie-amd64-netinst",
+        "box_name": "couchdev-debian-jessie-8.2.0-amd64-netinst",
+        "locale": "en_US",
+        "language": "en"
+    },
+    "builders": [
+        {
+            "vm_name": "{{user `vm_name`}}",
+            "type": "virtualbox-iso",
+            "http_directory": "http",
+            "iso_url": "{{user `iso_url`}}",
+            "iso_checksum": "{{user `iso_checksum`}}",
+            "iso_checksum_type": "{{user `iso_checksum_type`}}",
+            "guest_os_type": "Debian_64",
+            "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+            "virtualbox_version_file": ".vbox_version",
+            "ssh_username": "{{ user `ssh_username` }}",
+            "ssh_password": "{{ user `ssh_password` }}",
+            "ssh_wait_timeout": "10000s",
+            "boot_command": [
+                "<esc><wait>",
+                "install <wait>",
+                "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/{{ user `preseed` }} <wait>",
+                "debian-installer={{ user `locale` }} <wait>",
+                "auto <wait>",
+                "locale={{ user `locale` }} <wait>",
+                "kbd-chooser/method={{ user `language` }} <wait>",
+                "keyboard-configuration/xkb-keymap={{ user `language` }} <wait>",
+                "netcfg/get_hostname={{ .Name }} <wait>",
+                "netcfg/get_domain={{ user `domain` }} <wait>",
+                "fb=false <wait>",
+                "debconf/frontend=noninteractive <wait>",
+                "console-setup/ask_detect=false <wait>",
+                "console-keymaps-at/keymap={{ user `language` }} <wait>",
+                "<enter><wait>"
+            ],
+            "shutdown_command": "echo 'vagrant'|sudo -S shutdown -h now",
+            "disk_size": 40000,
+            "vboxmanage": [
+                ["modifyvm", "{{.Name}}", "--memory", "4096"],
+                ["modifyvm", "{{.Name}}", "--cpus", "4"]
+            ]
+        }],
+    "provisioners": [{
+        "type": "shell",
+        "environment_vars": [
+            "PROVISIONER={{user `provisioner`}}",
+            "PROVISIONER_VERSION={{user `provisioner_version`}}"
+        ],
+        "execute_command": "echo 'vagrant' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
+        "scripts": [
+            "script/base.sh",
+            "script/vagrant.sh",
+            "script/vmtools.sh",
+            "script/provisioner.sh",
+            "script/cleanup.sh",
+            "script/zerodisk.sh"
+        ]
+    }],
+    "post-processors": [{
+        "type": "vagrant",
+        "keep_input_artifact": false,
+        "output": "../../{{.Provider}}/{{user `box_name`}}-{{user `provisioner`}}{{user `provisioner_version`}}.box"
+    }]
+}
